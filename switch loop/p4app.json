@@ -1,6 +1,6 @@
 {
-    "program": "test.p4",
-    "language": "p4-14",
+    "program": "V4.p4",
+    "language": "p4-16",
     "targets": {
       "multiswitch": {
           "auto-control-plane": true,
@@ -11,19 +11,19 @@
           "hosts": {
             "h1": {
             },
-            "h11": {
-            },
             "h2": {
-            },
-            "h22": {
             },
             "h3": {
             },
-	    "h33": {
+            "h4": {
             },
-	    "h4": {
+            "h5": {
             },
-	    "h44": {
+	    "h6": {
+            },
+	    "h7": {
+            },
+	    "h8": {
             }
 
 

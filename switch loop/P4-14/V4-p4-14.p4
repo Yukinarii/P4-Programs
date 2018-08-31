@@ -115,6 +115,48 @@ table best_hop_update {
     }
 }
 
+action write_sw_info() {
+    register_read(util.handle_traffic, traffic_limiter, standard_metadata.egress_spec);
+}
+table write_sw_info {
+    actions {
+        write_sw_info;
+    }
+}
+table write_sw_info2 {
+    actions {
+        write_sw_info;
+    }
+}
+
+action record_sw_info() {
+    register_write(traffic_limiter, tmp.ingress_port, util.handle_traffic);
+}
+table record_sw_info{
+    actions {
+        record_sw_info;
+    }
+}
+
+action adding_util() {
+	add_header(util);
+	modify_field(util.id, 0x1234);
+}
+table add_util {
+	actions {
+		adding_util;
+	}
+}
+
+action removing_util() {
+	remove_header(util);
+}
+table remove_util {
+	actions {
+		removing_util;
+	}
+}
+
 action route(egress_spec) {
     modify_field(standard_metadata.egress_spec, egress_spec);
 }
@@ -153,6 +195,9 @@ control ingress {
         apply(read_info);
     if(valid(ipv4)){
         if(valid(tcp)){
+            if(valid(util) && tmp.resubmit_flag == 0)
+                apply(record_sw_info); // update info with util header
+        	
 		    apply(update_in_traffic_limiter); // inbound traffic, update the corresponding register(increase)
 			if(tmp.traffic > MAX_TRAFFIC)
 				apply(substract_to_max);
@@ -178,5 +223,14 @@ control ingress {
 control egress {
     if(valid(ipv4)){
     	apply(update_out_traffic_limiter); // outbound traffic, update the corresponding traffic(decrease)
-    }
+		if(valid(util)){
+        	apply(write_sw_info); // write to util.handle_traffic
+        	if(tmp.tag == 1) // tag == 1, leaf switch
+		    	apply(remove_util);
+		}    
+		else{
+        	apply(add_util);
+        	apply(write_sw_info2);
+    	}
+	}
 }

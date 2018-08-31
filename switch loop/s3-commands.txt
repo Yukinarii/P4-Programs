@@ -9,13 +9,8 @@ register_write traffic_limiter 1 1700000
 register_write traffic_limiter 2 1600000
 register_write traffic_limiter 3 1600000
 register_write traffic_limiter 4 1600000
-table_set_default read_info read_infoㄋ
-table_set_default best_hop_update update_best_hop
-table_set_default get_best_hop_info get_best_hop_info
-table_set_default start_next_iter next_iteration
-table_add resubmit_new_pkt do_resubmit 0 =>
-table_set_default update_out_traffic_limiter update_out_traffic_limit
-table_set_default update_in_traffic_limiter update_in_traffic_limit
-table_set_default substract_to_max substract_to_max
+
 table_add forward route 10.0.3.3 => 1
 table_add forward route 10.0.3.33 => 2
+table_add dmac set_dmac 1 => 00:00:00:00:03:03
+table_add dmac set_dmac 2 => 00:00:00:00:03:33
